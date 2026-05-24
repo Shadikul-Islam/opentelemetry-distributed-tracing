@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ../tempo/tempo.yaml:/etc/tempo.yaml
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"
+    networks:
+      - tracing-net
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.111.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ../otel/collector/config.yaml:/etc/otel/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - tracing-net
+    depends_on:
+      - tempo
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    networks:
+      - tracing-net
+    depends_on:
+      - tempo
+
+networks:
+  tracing-net:
+    name: tracing-net
+    driver: bridge
+
+volumes:
+  grafana_data:
+    name: grafana_data
+  tempo_data:
+    name: tempo_data

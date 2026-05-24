@@ -1,0 +1,841 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": {
+            "type": "grafana",
+            "uid": "-- Grafana --"
+          },
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "Shows high level LLM successes and failures.",
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 5,
+    "links": [],
+    "panels": [
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        },
+        "id": 6,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "Tempo"
+            },
+            "filters": [
+              {
+                "id": "2981aa81",
+                "operator": "=",
+                "scope": "span"
+              }
+            ],
+            "limit": 1000,
+            "query": "{name=\"span\"}",
+            "queryType": "traceqlSearch",
+            "refId": "A",
+            "spss": 10,
+            "tableType": "traces"
+          }
+        ],
+        "title": "Total Requests",
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Duration": true,
+                "Name": true,
+                "Service": true,
+                "Start time": true,
+                "nested": true
+              },
+              "includeByName": {},
+              "indexByName": {},
+              "renameByName": {}
+            }
+          },
+          {
+            "id": "reduce",
+            "options": {
+              "includeTimeField": false,
+              "mode": "reduceFields",
+              "reducers": [
+                "count"
+              ]
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "#EAB839",
+                  "value": 0
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 5,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        },
+        "id": 7,
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto",
+          "orientation": "auto",
+          "percentChangeColorMode": "standard",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showPercentChange": false,
+          "textMode": "auto",
+          "wideLayout": true
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "Tempo"
+            },
+            "limit": 1000,
+            "query": "{name=\"step\" } | select(span.output.value)",
+            "queryType": "traceql",
+            "refId": "A",
+            "tableType": "spans"
+          }
+        ],
+        "title": "Total Failed Validations",
+        "transformations": [
+          {
+            "id": "extractFields",
+            "options": {
+              "format": "json",
+              "jsonPaths": [
+                {
+                  "alias": "Prompt 1",
+                  "path": "inputs.msgHistory[0]['content']"
+                },
+                {
+                  "alias": "LLM Response",
+                  "path": "outputs.llmResponseInfo.output"
+                },
+                {
+                  "alias": "Prompt 2",
+                  "path": "inputs.msgHistory[1]['content']"
+                },
+                {
+                  "alias": "Prompt 3",
+                  "path": "inputs.msgHistory[2]['content']"
+                },
+                {
+                  "alias": "Prompt 4",
+                  "path": "inputs.msgHistory[3]['content']"
+                },
+                {
+                  "alias": "outcome1",
+                  "path": "outputs.validatorLogs[0].validationResult.outcome"
+                },
+                {
+                  "alias": "outcome2",
+                  "path": "outputs.validatorLogs[1].validationResult.outcome"
+                },
+                {
+                  "alias": "outcome3",
+                  "path": "outputs.validatorLogs[2].validationResult.outcome"
+                },
+                {
+                  "alias": "outcome4",
+                  "path": "outputs.validatorLogs[3].validationResult.outcome"
+                },
+                {
+                  "alias": "outcome5",
+                  "path": "outputs.validatorLogs[4].validationResult.outcome"
+                }
+              ],
+              "source": "output.value"
+            }
+          },
+          {
+            "id": "filterByValue",
+            "options": {
+              "filters": [
+                {
+                  "config": {
+                    "id": "equal",
+                    "options": {
+                      "value": "fail"
+                    }
+                  },
+                  "fieldName": "outcome1"
+                },
+                {
+                  "config": {
+                    "id": "equal",
+                    "options": {
+                      "value": "fail"
+                    }
+                  },
+                  "fieldName": "outcome2"
+                },
+                {
+                  "config": {
+                    "id": "equal",
+                    "options": {
+                      "value": "fail"
+                    }
+                  },
+                  "fieldName": "outcome3"
+                },
+                {
+                  "config": {
+                    "id": "equal",
+                    "options": {
+                      "value": "fail"
+                    }
+                  },
+                  "fieldName": "outcome4"
+                },
+                {
+                  "config": {
+                    "id": "equal",
+                    "options": {
+                      "value": "fail"
+                    }
+                  },
+                  "fieldName": "outcome5"
+                }
+              ],
+              "match": "any",
+              "type": "include"
+            }
+          },
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {
+                "Duration": true,
+                "LLM Response": true,
+                "Name": true,
+                "Prompt": true,
+                "Prompt 1": true,
+                "Prompt 2": true,
+                "Prompt 3": true,
+                "Prompt 4": true,
+                "Span ID": false,
+                "Start time": true,
+                "Trace Name": true,
+                "Trace Service": true,
+                "outcome1": true,
+                "outcome2": true,
+                "outcome3": true,
+                "outcome4": true,
+                "outcome5": true,
+                "output.value": true,
+                "traceIdHidden": true
+              },
+              "includeByName": {},
+              "indexByName": {
+                "Duration": 7,
+                "LLM Response": 9,
+                "Name": 5,
+                "Prompt 1": 8,
+                "Prompt 2": 10,
+                "Prompt 3": 11,
+                "Prompt 4": 12,
+                "Span ID": 3,
+                "Start time": 4,
+                "Trace Name": 2,
+                "Trace Service": 1,
+                "outcome1": 13,
+                "outcome2": 14,
+                "outcome3": 15,
+                "outcome4": 16,
+                "outcome5": 17,
+                "output.value": 6,
+                "traceIdHidden": 0
+              },
+              "renameByName": {
+                "Message History": "",
+                "Prompt 1": "Prompt"
+              }
+            }
+          },
+          {
+            "id": "reduce",
+            "options": {
+              "reducers": [
+                "count"
+              ]
+            }
+          }
+        ],
+        "type": "stat"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false
+            },
+            "links": [
+              {
+                "title": "Trace link",
+                "url": "d/archestra-platform?var-traceId=${__data.fields[\"traceID\"]}"
+              }
+            ],
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Duration"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "ms"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 9,
+          "w": 24,
+          "x": 0,
+          "y": 5
+        },
+        "id": 9,
+        "options": {
+          "cellHeight": "sm",
+          "footer": {
+            "countRows": false,
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": false,
+              "displayName": "Trace ID"
+            }
+          ]
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "$traces_datasource"
+            },
+            "filters": [
+              {
+                "id": "16cb2113",
+                "operator": "=",
+                "scope": "span"
+              },
+              {
+                "id": "min-duration",
+                "operator": ">",
+                "tag": "duration",
+                "value": "1m",
+                "valueType": "duration"
+              },
+              {
+                "id": "max-duration",
+                "operator": "<",
+                "tag": "duration",
+                "value": "5m",
+                "valueType": "duration"
+              }
+            ],
+            "hide": false,
+            "instant": false,
+            "limit": 100,
+            "metricsQueryType": "range",
+            "query": "{ resource.service.name = \"user-service\" && duration > 1s }",
+            "queryType": "traceql",
+            "range": true,
+            "refId": "A",
+            "serviceMapUseNativeHistograms": false,
+            "tableType": "traces"
+          }
+        ],
+        "title": "One Second Plus Traces",
+        "type": "table"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 14
+        },
+        "id": 1,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "list",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "maxHeight": 600,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "Tempo"
+            },
+            "filters": [
+              {
+                "id": "0b3c1488",
+                "operator": "=",
+                "scope": "span"
+              }
+            ],
+            "limit": 1000,
+            "queryType": "traceqlSearch",
+            "refId": "A",
+            "tableType": "traces"
+          }
+        ],
+        "title": "Guard run duration",
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "description": "These occur when a runtime error is invoked and the Guard is not able to fulfill a request as exepected",
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "axisBorderShow": false,
+              "axisCenteredZero": false,
+              "axisColorMode": "text",
+              "axisLabel": "",
+              "axisPlacement": "auto",
+              "barAlignment": 0,
+              "barWidthFactor": 0.6,
+              "drawStyle": "line",
+              "fillOpacity": 0,
+              "gradientMode": "none",
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              },
+              "insertNulls": false,
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "pointSize": 5,
+              "scaleDistribution": {
+                "type": "linear"
+              },
+              "showPoints": "auto",
+              "spanNulls": false,
+              "stacking": {
+                "group": "A",
+                "mode": "none"
+              },
+              "thresholdsStyle": {
+                "mode": "off"
+              }
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                }
+              ]
+            }
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 14
+        },
+        "id": 4,
+        "options": {
+          "legend": {
+            "calcs": [],
+            "displayMode": "table",
+            "placement": "bottom",
+            "showLegend": true
+          },
+          "tooltip": {
+            "hideZeros": false,
+            "maxHeight": 600,
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "Tempo"
+            },
+            "filters": [
+              {
+                "id": "9a2ba9ae",
+                "operator": "=",
+                "scope": "span"
+              },
+              {
+                "id": "status",
+                "operator": "=",
+                "scope": "intrinsic",
+                "tag": "status",
+                "value": "error",
+                "valueType": "keyword"
+              },
+              {
+                "id": "span-name",
+                "operator": "=",
+                "scope": "span",
+                "tag": "name",
+                "value": [
+                  "step"
+                ],
+                "valueType": "string"
+              }
+            ],
+            "hide": false,
+            "limit": 20,
+            "queryType": "traceqlSearch",
+            "refId": "A",
+            "tableType": "traces"
+          }
+        ],
+        "title": "Guard Execution Errors",
+        "transformations": [
+          {
+            "id": "calculateField",
+            "options": {
+              "mode": "reduceRow",
+              "reduce": {
+                "reducer": "count"
+              },
+              "replaceFields": true
+            }
+          }
+        ],
+        "type": "timeseries"
+      },
+      {
+        "datasource": {
+          "type": "tempo",
+          "uid": "Tempo"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "custom": {
+              "align": "auto",
+              "cellOptions": {
+                "type": "auto"
+              },
+              "inspect": false
+            },
+            "links": [
+              {
+                "title": "Trace link",
+                "url": "d/archestra-platform?var-traceId=${__data.fields[\"traceID\"]}"
+              }
+            ],
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            }
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "Duration"
+              },
+              "properties": [
+                {
+                  "id": "unit",
+                  "value": "ms"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 12,
+          "w": 24,
+          "x": 0,
+          "y": 22
+        },
+        "id": 10,
+        "options": {
+          "cellHeight": "sm",
+          "footer": {
+            "countRows": false,
+            "fields": "",
+            "reducer": [
+              "sum"
+            ],
+            "show": false
+          },
+          "showHeader": true,
+          "sortBy": [
+            {
+              "desc": true,
+              "displayName": "Duration"
+            }
+          ]
+        },
+        "pluginVersion": "12.1.1",
+        "targets": [
+          {
+            "datasource": {
+              "type": "tempo",
+              "uid": "$traces_datasource"
+            },
+            "filters": [
+              {
+                "id": "16cb2113",
+                "operator": "=",
+                "scope": "span"
+              }
+            ],
+            "hide": false,
+            "instant": false,
+            "limit": 100,
+            "metricsQueryType": "range",
+            "query": "{resource.service.name=\"Archestra Platform API\"}",
+            "queryType": "traceqlSearch",
+            "range": true,
+            "refId": "A",
+            "serviceMapUseNativeHistograms": false,
+            "tableType": "traces"
+          }
+        ],
+        "title": "All Traces",
+        "type": "table"
+      }
+    ],
+    "preload": false,
+    "refresh": "",
+    "schemaVersion": 41,
+    "tags": [],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Distributed Tracing",
+    "uid": "1",
+    "version": 2
+  }
