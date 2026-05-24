@@ -113,7 +113,7 @@ This project provides a centralized tracing architecture where multiple services
 
 ## <a name="04">Project Structure</a>
 
-``` text
+```text
 ├── docker
 │   └── docker-compose.yml
 │   └── .env
@@ -225,7 +225,8 @@ Application Services
 1. Start Services ```cd docker && docker-compose up -d```
 
 2. Access Services
-```
+
+```text
 Service	                    URL
 Grafana	                http://localhost:3000
 Tempo	                http://localhost:3200
@@ -252,7 +253,7 @@ wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releas
 
 **Run Java application with OpenTelemetry agent**:
 
-``` bash
+```bash
 java -javaagent:opentelemetry-javaagent.jar \
 -Dotel.service.name=user-service \
 -Dotel.exporter.otlp.endpoint=http://MONITORING_SERVER_IP:4318 \
