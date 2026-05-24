@@ -1,4 +1,4 @@
-# OpenTelemetry Distributed Tracing
+# <p align=center>OpenTelemetry Distributed Tracing  <br> <br> </p> 
 
 ## Table of Contents
 
@@ -45,7 +45,7 @@ In distributed environments, requests pass through multiple services and infrast
 
 As the system scales, these issues become more critical and harder to manage.
 
-** Solution **
+**Solution **
 
 This project provides a centralized distributed tracing platform using OpenTelemetry, OpenTelemetry Collector, Grafana Tempo, and Grafana.
 
@@ -58,7 +58,7 @@ Production-style distributed tracing stack using OpenTelemetry, Grafana Tempo, G
 
 This project provides a centralized tracing architecture where multiple services from different technology stacks can send traces to a single observability platform.
 
-*Supported use cases*:
+**Supported use cases**:
 
 - Java services
 - PHP services
@@ -79,6 +79,8 @@ This project provides a centralized tracing architecture where multiple services
 - Docker Compose
 
 ## <a name="03">Architecture</a>
+
+```text
 +-------------------+
 | Application Layer |
 +-------------------+
@@ -113,7 +115,7 @@ This project provides a centralized tracing architecture where multiple services
 +-------------------+
 |      Grafana      |
 +-------------------+
-
+```
 
 ## <a name="04">Project Structure</a>
 
@@ -207,6 +209,7 @@ Port	Purpose
 
 ## <a name="07">Network Flow</a>
 
+```text
 Application Services
         |
         v
@@ -217,6 +220,7 @@ Application Services
         |
         v
      Grafana
+```
 
 
 ## <a name="08">Run the Stack</a>
@@ -245,7 +249,7 @@ ADMIN_PASSWORD=adminpass
 
 **Download Java OpenTelemetry agent**:
 
-wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+```wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar```
 
 **Run Java application with OpenTelemetry agent**:
 
