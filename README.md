@@ -246,7 +246,9 @@ ADMIN_PASSWORD=adminpass
 
 **Download Java OpenTelemetry agent**:
 
-```wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar```
+```bash
+wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar
+```
 
 **Run Java application with OpenTelemetry agent**:
 
