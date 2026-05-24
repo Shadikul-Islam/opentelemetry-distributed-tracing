@@ -45,7 +45,7 @@ In distributed environments, requests pass through multiple services and infrast
 
 As the system scales, these issues become more critical and harder to manage.
 
-**Solution **
+**Solution**
 
 This project provides a centralized distributed tracing platform using OpenTelemetry, OpenTelemetry Collector, Grafana Tempo, and Grafana.
 
@@ -122,6 +122,7 @@ This project provides a centralized tracing architecture where multiple services
 ``` text
 ├── docker
 │   └── docker-compose.yml
+│   └── .env
 ├── grafana
 │   └── provisioning
 │       ├── dashboards
@@ -152,11 +153,11 @@ Acts as the centralized telemetry gateway.
 
 **Ports**:
 
+```text
 Port	Purpose
-
 4318	OTLP HTTP
-
 4317	OTLP gRPC
+```
 
 
 ### Grafana Tempo
@@ -171,9 +172,10 @@ Distributed tracing backend used for storing traces.
 
 **Port**:
 
+```text
 Port	Purpose
-
 3200	Tempo API
+```
 
 
 ### Grafana
@@ -189,9 +191,10 @@ Visualization and trace exploration UI.
 
 **Port**:
 
+```text
 Port	Purpose
-
 3000	Grafana UI
+```
 
 
 ## <a name="06">Features</a>
@@ -240,7 +243,7 @@ OTEL Collector gRPC	    localhost:4317
 
 Credentials are configured from docker folder .env file.
 
-``` text
+```bash
 ADMIN_USER=sadik
 ADMIN_PASSWORD=adminpass
 ```
