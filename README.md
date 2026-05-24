@@ -84,34 +84,28 @@ This project provides a centralized tracing architecture where multiple services
 +-------------------+
 | Application Layer |
 +-------------------+
-
     Java Service
     PHP Service
     Node.js Service
     Python Service
     Frontend Apps
-
+    Other Microservices
         |
         | OTLP Traces
         v
-
 +--------------------------+
 | OpenTelemetry Collector  |
 |        (Gateway)         |
 +--------------------------+
-
         |
         | Forward Traces
         v
-
 +-------------------+
 |   Grafana Tempo   |
 +-------------------+
-
         |
         | Query Traces
         v
-
 +-------------------+
 |      Grafana      |
 +-------------------+
