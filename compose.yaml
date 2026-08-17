@@ -1,0 +1,17 @@
+# env_file is set on every include because an included compose file resolves
+# variables against its own directory, so without it every ${VAR} would be empty.
+
+name: distributed-tracing
+
+include:
+  - path: infrastructure/mysql/compose.yaml
+    env_file: .env
+
+  - path: tracing/compose.yaml
+    env_file: .env
+
+  - path: micro-services/inventory-service/compose.yaml
+    env_file: .env
+
+  - path: micro-services/order-service/compose.yaml
+    env_file: .env

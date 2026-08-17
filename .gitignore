@@ -1,0 +1,31 @@
+# Secrets. Commit .env.example instead.
+.env
+*.env
+!.env.example
+
+# Java build output
+target/
+*.jar
+*.class
+
+# PHP
+vendor/
+composer.lock
+
+# Screenshots are committed, but keep editor leftovers out
+*.xcf
+*~
+
+# IDE
+.idea/
+*.iml
+.vscode/
+nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and temp
+*.log
+*.tmp

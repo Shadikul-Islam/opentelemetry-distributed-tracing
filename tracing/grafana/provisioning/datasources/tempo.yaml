@@ -1,0 +1,26 @@
+apiVersion: 1
+
+datasources:
+  - name: Tempo
+    type: tempo
+    uid: Tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: true
+    jsonData:
+      serviceMap:
+        datasourceUid: Prometheus
+      nodeGraph:
+        enabled: true
+      search:
+        hide: false
+      # $$__tags is escaped because Grafana expands $VAR in provisioning files.
+      tracesToMetrics:
+        datasourceUid: Prometheus
+        queries:
+          - name: 'Request rate'
+            query: 'sum(rate(traces_spanmetrics_calls_total{$$__tags}[5m]))'
+          - name: 'Error rate'
+            query: 'sum(rate(traces_spanmetrics_calls_total{$$__tags,status_code="STATUS_CODE_ERROR"}[5m]))'
+          - name: 'p95 latency'
+            query: 'histogram_quantile(0.95, sum(rate(traces_spanmetrics_duration_milliseconds_bucket{$$__tags}[5m])) by (le))'

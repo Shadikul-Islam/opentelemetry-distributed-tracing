@@ -1,0 +1,41 @@
+services:
+
+  inventory-service:
+    build:
+      context: .
+    image: distributed-tracing/inventory-service:1.0.0
+    container_name: inventory-service
+    ports:
+      - "8081:80"
+    environment:
+      - INVENTORY_DB_HOST=mysql
+      - INVENTORY_DB_PORT=3306
+      - INVENTORY_DB_NAME=${INVENTORY_DB_NAME}
+      - INVENTORY_DB_USER=${INVENTORY_DB_USER}
+      - INVENTORY_DB_PASSWORD=${INVENTORY_DB_PASSWORD}
+      - OTEL_SERVICE_NAME=inventory-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - SERVICE_VERSION=1.0.0
+      - DEPLOYMENT_ENVIRONMENT=local
+    networks:
+      - tracing-net
+    depends_on:
+      mysql:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+    healthcheck:
+      # PHP's curl extension, since the curl binary cannot be installed here.
+      test: ["CMD", "php", "-r", "$$c=curl_init('http://127.0.0.1/health');curl_setopt($$c,CURLOPT_RETURNTRANSFER,1);curl_exec($$c);exit(curl_getinfo($$c,CURLINFO_HTTP_CODE)===200?0:1);"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 15s
+
+networks:
+  tracing-net:
+    name: tracing-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.28.0.0/24

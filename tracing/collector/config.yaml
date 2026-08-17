@@ -1,0 +1,92 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+
+  memory_limiter:
+    limit_mib: 512
+    spike_limit_mib: 128
+    check_interval: 5s
+
+  # Drops health and scrape traffic. Both stable and legacy attribute names are
+  # matched; error_mode: ignore makes a missing attribute a no-op.
+  filter/drop_monitoring:
+    error_mode: ignore
+    traces:
+      span:
+        - 'attributes["url.path"] == "/actuator/prometheus"'
+        - 'attributes["url.path"] == "/actuator/health"'
+        - 'attributes["url.path"] == "/health"'
+        - 'attributes["http.route"] == "/actuator/prometheus"'
+        - 'attributes["http.route"] == "/actuator/health"'
+        - 'attributes["http.route"] == "/health"'
+        - 'attributes["http.target"] == "/actuator/prometheus"'
+        - 'attributes["http.target"] == "/actuator/health"'
+        - 'attributes["http.target"] == "/health"'
+
+connectors:
+  # Derives RED metrics from spans. This is the only source of metrics for
+  # inventory-service, which exposes no metrics endpoint.
+  spanmetrics:
+    namespace: traces.spanmetrics
+    histogram:
+      explicit:
+        buckets: [5ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2s, 5s, 10s]
+    dimensions:
+      - name: http.request.method
+      - name: http.response.status_code
+      - name: http.route
+      - name: http.method
+      - name: http.status_code
+    exemplars:
+      enabled: true
+    metrics_flush_interval: 15s
+
+  servicegraph:
+    latency_histogram_buckets: [10ms, 50ms, 100ms, 250ms, 1s, 5s]
+    store:
+      ttl: 10s
+      max_items: 10000
+
+exporters:
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    # Required for exemplars to survive the scrape.
+    enable_open_metrics: true
+    # Promotes service.name to a service_name label.
+    resource_to_telemetry_conversion:
+      enabled: true
+
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      # filter runs before the connectors, so dropped spans pollute neither
+      # Tempo nor the derived metrics.
+      processors: [memory_limiter, filter/drop_monitoring, batch]
+      exporters: [otlp/tempo, spanmetrics, servicegraph, debug]
+
+    metrics:
+      receivers: [spanmetrics, servicegraph]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus]
+
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888

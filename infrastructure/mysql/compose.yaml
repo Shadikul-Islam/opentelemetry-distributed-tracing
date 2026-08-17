@@ -1,0 +1,35 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    # PHP 7.2's mysqlnd cannot negotiate MySQL 8's default caching_sha2_password.
+    command:
+      - --default-authentication-plugin=mysql_native_password
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d:ro
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - tracing-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
+networks:
+  tracing-net:
+    name: tracing-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.28.0.0/24
+
+volumes:
+  mysql_data:
+    name: mysql_data

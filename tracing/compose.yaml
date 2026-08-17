@@ -1,0 +1,84 @@
+services:
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./tempo/tempo.yaml:/etc/tempo.yaml
+      - tempo_data:/var/tempo
+    ports:
+      - "3200:3200"
+    networks:
+      - tracing-net
+
+  otel-collector:
+    # contrib: the spanmetrics and servicegraph connectors are not in the core build.
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./collector/config.yaml:/etc/otel/config.yaml
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "8889:8889"
+    networks:
+      - tracing-net
+    depends_on:
+      - tempo
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      # Required for the metric to trace jump.
+      - --enable-feature=exemplar-storage
+      - --storage.tsdb.retention.time=24h
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - tracing-net
+    depends_on:
+      - otel-collector
+
+  grafana:
+    # Pinned: :latest is Grafana 12, whose dashboard API rejects provisioning
+    # against a pre-existing grafana_data volume.
+    image: grafana/grafana:10.4.2
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    networks:
+      - tracing-net
+    depends_on:
+      - tempo
+      - prometheus
+
+networks:
+  tracing-net:
+    name: tracing-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.28.0.0/24
+
+volumes:
+  tempo_data:
+    name: tempo_data
+  prometheus_data:
+    name: prometheus_data
+  grafana_data:
+    name: grafana_data
