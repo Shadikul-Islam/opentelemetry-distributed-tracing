@@ -47,6 +47,9 @@ flowchart LR
     J --> P["inventory-service<br/>PHP"]
     P --> DB2[("inventorydb")]
 
+    DB2 ~~~ PAD["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+
+    style PAD fill:none,stroke:none
     style J fill:#425CC7,stroke:#2b3d8f,color:#fff
     style P fill:#777BB4,stroke:#4f5280,color:#fff
 ```
@@ -116,6 +119,11 @@ flowchart TB
     TEMPO --> GRAF
     PROM --> GRAF
 
+    GRAF ~~~ PAD1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    PAD1 ~~~ PAD2["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+
+    style PAD1 fill:none,stroke:none
+    style PAD2 fill:none,stroke:none
     style OS fill:#425CC7,stroke:#2b3d8f,color:#fff
     style IS fill:#777BB4,stroke:#4f5280,color:#fff
     style COL fill:#6B4FBB,stroke:#463079,color:#fff
@@ -356,18 +364,23 @@ started, because instrumentation must never fail a request.
 
 ```mermaid
 flowchart LR
-    R["OTLP receiver<br/>gRPC 4317 / HTTP 4318"] --> ML["memory_limiter"]
-    ML --> F["filter<br/>drop health paths"]
+    R["OTLP receiver<br/>4317 / 4318"] --> ML["memory<br/>limiter"]
+    ML --> F["filter<br/>health paths"]
     F --> B["batch"]
 
-    B --> EX["otlp exporter"] --> TEMPO[("Tempo")]
-    B --> SM["spanmetrics<br/>connector"]
-    B --> SG["servicegraph<br/>connector"]
+    B --> EX["otlp<br/>exporter"] --> TEMPO[("Tempo")]
+    B --> SM["spanmetrics"]
+    B --> SG["servicegraph"]
 
-    SM --> PE["prometheus exporter<br/>:8889"]
+    SM --> PE["prometheus<br/>exporter :8889"]
     SG --> PE
     PE --> PROM[("Prometheus")]
 
+    PROM ~~~ PAD1["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+    PAD1 ~~~ PAD2["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+
+    style PAD1 fill:none,stroke:none
+    style PAD2 fill:none,stroke:none
     style F fill:#c0392b,stroke:#7d2620,color:#fff
     style SM fill:#6B4FBB,stroke:#463079,color:#fff
     style SG fill:#6B4FBB,stroke:#463079,color:#fff
