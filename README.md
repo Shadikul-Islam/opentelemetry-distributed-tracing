@@ -243,7 +243,6 @@ hunting for pieces elsewhere.
 │
 ├── scripts/
 │   ├── generate-traffic.sh
-│   └── capture-screenshots.sh
 │
 └── docs/screenshots/
 ```
